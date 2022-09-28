@@ -101,6 +101,6 @@ if __name__ == '__main__':
     # 存放英雄地址
     hero_link_list = [ ]
     # 单张下载
-    # parse_single_hero_data('https://pvp.qq.com/web201605/herodetail/162.shtml')
-    
+    parse_single_hero_data('https://pvp.qq.com/web201605/herodetail/162.shtml')
+    # 全部英雄下载
     # start()
