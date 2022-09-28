@@ -1,11 +1,7 @@
 '''
 王者荣耀官方 英雄壁纸爬取
 '''
-from ast import main
-from lib2to3.pytree import Node
 import os
-from random import random
-from tokenize import String 
 from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
 import requests
