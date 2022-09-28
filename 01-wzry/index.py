@@ -100,5 +100,7 @@ if __name__ == '__main__':
     skin_skin_link = 'https://game.gtimg.cn/images/yxzj/img201606/skin/hero-info/{}/{}-bigskin-{}.jpg'
     # 存放英雄地址
     hero_link_list = [ ]
-    start()
+    # 单张下载
+    # parse_single_hero_data('https://pvp.qq.com/web201605/herodetail/162.shtml')
     
+    # start()
