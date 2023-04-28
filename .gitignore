@@ -1,1 +1,8 @@
 **/img
+img/**
+**/*.txt
+.idea
+
+**/*.jpg
+**/*.png
+**/*.jpeg

@@ -2,36 +2,47 @@
 
 #### 介绍
 python简单使用
+#### 安装镜像源头，加速下载
+ - 清华云:https://pypi.tuna.tsinghua.edu.cn/simple
+ - 阿里云:http://mirrors.aliyun.com/pypi/simple/
+ - 中国科技大学 https://pypi.mirrors.ustc.edu.cn/simple/
+ - 华中理工大学:http://pypi.hustunique.com/
+ - 山东理工大学:http://pypi.sdutlinux.org/ 
+ - 豆瓣:http://pypi.douban.com/simple/
+> 使用方式如下
 
-#### 软件架构
-软件架构说明
+~~~shell
+pip install 包名 -i 镜像源地址
 
-
-#### 安装教程
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+#例如安装 pandas
+pip install pandas -i http://pypi.douban.com/simple/
+~~~
 
 
-#### 特技
+>永久修改制定地址
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+**Linux**
+ - 查看是否存在文件 /etc/pip.conf
+    ~~~shell
+    touch /etc/pip.conf
+    
+    ~~~
+ - 进入配置文件修改：`vim /etc/pip.conf`
+    ~~~shell
+    [global]
+    index-url = https://pypi.douban.com/simple
+    # 如果使用http链接，则需要trusted-host参数
+    [install]
+    trusted-host = mirrors.aliyun.com
+    ~~~
+
+
+**windows**
+ - win+r 打开命令面板
+ - %HOMEPATH% 进入配置 创建文件夹 pip 然后创建 pip.ini
+ - ~~~shell
+    [global]
+    timeout = 6000
+    index-url = https://pypi.douban.com/simple
+    trusted-host = mirrors.aliyun.com
+   ~~~
