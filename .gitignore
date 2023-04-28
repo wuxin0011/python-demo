@@ -6,3 +6,6 @@ img/**
 **/*.jpg
 **/*.png
 **/*.jpeg
+**/*.exe
+**/build
+**/dist
