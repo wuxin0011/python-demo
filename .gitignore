@@ -10,3 +10,6 @@ img/**
 **/build
 **/dist
 *.spec
+
+!note-img
+!note-img/**
