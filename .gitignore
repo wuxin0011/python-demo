@@ -9,3 +9,4 @@ img/**
 **/*.exe
 **/build
 **/dist
+*.spec
