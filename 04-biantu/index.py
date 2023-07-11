@@ -262,7 +262,7 @@ def menu():
         print('序号',index, '类型',v ,"下载地址:",f'{root_url}{k}')
         index = index+1
     print("==========================================================")
-    print("下载的链接页的起始页链接仅支持https: // pic.netbian.com的图片：")
+    print("下载的链接页的起始页链接仅支持https://pic.netbian.com的图片：")
 
 
 if __name__ == '__main__':
