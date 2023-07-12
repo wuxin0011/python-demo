@@ -74,6 +74,15 @@ pip install pandas -i http://pypi.douban.com/simple/
 -  图形化显示更好
 
 
+## 网站源码抓取
+
+[网站源码抓取](https://github.com/wuxin0011/python-demo/releases/download/1.0/qd_novel_info.exe)
+
+### 问题
+- 下载时间久无法终止
+- 测试网站有限兼容性问题
+- **不支持单页面应用!!!**
+
 
 # 打包成可执行文件
 
