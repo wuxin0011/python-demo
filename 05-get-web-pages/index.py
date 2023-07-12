@@ -42,7 +42,9 @@ already_download_video_list = []
 # 已经下载audio地址
 already_download_audio_list = []
 
-exclude = ['tel:', 'file:', 'data:', 'void(0)', 'javascript:', 'mailto:', 'ftp:', 'tcp:', 'ws:', 'wss:']
+exclude = ['tel:', 'file:', 'data:', 'void(0)', 'javascript:', 'mailto:', 'ftp:', 'tcp:', 'ws:', 'wss:', 'tencent:',
+           'email:', '#']
+web_encoding = None
 
 # 锁
 html_url_lock = threading.Lock()
@@ -153,53 +155,7 @@ list_useragent = [
     "Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16",
     "Opera/9.80 (Windows NT 6.0) Presto/2.12.388 Version/12.14",
     "Mozilla/5.0 (Windows NT 6.0; rv:2.0) Gecko/20100101 Firefox/4.0 Opera 12.14",
-    "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0) Opera 12.14",
-    "Opera/12.80 (Windows NT 5.1; U; en) Presto/2.10.289 Version/12.02",
-    "Opera/9.80 (Windows NT 6.1; U; es-ES) Presto/2.9.181 Version/12.00",
-    "Opera/9.80 (Windows NT 5.1; U; zh-sg) Presto/2.9.181 Version/12.00",
-    "Opera/12.0(Windows NT 5.2;U;en)Presto/22.9.168 Version/12.00",
-    "Opera/12.0(Windows NT 5.1;U;en)Presto/22.9.168 Version/12.00",
-    "Mozilla/5.0 (Windows NT 5.1) Gecko/20100101 Firefox/14.0 Opera/12.0",
-    "Opera/9.80 (Windows NT 6.1; WOW64; U; pt) Presto/2.10.229 Version/11.62",
-    "Opera/9.80 (Windows NT 6.0; U; pl) Presto/2.10.229 Version/11.62",
-    "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; fr) Presto/2.9.168 Version/11.52",
-    "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; de) Presto/2.9.168 Version/11.52",
-    "Opera/9.80 (Windows NT 5.1; U; en) Presto/2.9.168 Version/11.51",
-    "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; de) Opera 11.51",
-    "Opera/9.80 (X11; Linux x86_64; U; fr) Presto/2.9.168 Version/11.50",
-    "Opera/9.80 (X11; Linux i686; U; hu) Presto/2.9.168 Version/11.50",
-    "Opera/9.80 (X11; Linux i686; U; ru) Presto/2.8.131 Version/11.11",
-    "Opera/9.80 (X11; Linux i686; U; es-ES) Presto/2.8.131 Version/11.11",
-    "Mozilla/5.0 (Windows NT 5.1; U; en; rv:1.8.1) Gecko/20061208 Firefox/5.0 Opera 11.11",
-    "Opera/9.80 (X11; Linux x86_64; U; bg) Presto/2.8.131 Version/11.10",
-    "Opera/9.80 (Windows NT 6.0; U; en) Presto/2.8.99 Version/11.10",
-    "Opera/9.80 (Windows NT 5.1; U; zh-tw) Presto/2.8.131 Version/11.10",
-    "Opera/9.80 (Windows NT 6.1; Opera Tablet/15165; U; en) Presto/2.8.149 Version/11.1",
-    "Opera/9.80 (X11; Linux x86_64; U; Ubuntu/10.10 (maverick); pl) Presto/2.7.62 Version/11.01",
-    "Opera/9.80 (X11; Linux i686; U; ja) Presto/2.7.62 Version/11.01",
-    "Opera/9.80 (X11; Linux i686; U; fr) Presto/2.7.62 Version/11.01",
-    "Opera/9.80 (Windows NT 6.1; U; zh-tw) Presto/2.7.62 Version/11.01",
-    "Opera/9.80 (Windows NT 6.1; U; zh-cn) Presto/2.7.62 Version/11.01",
-    "Opera/9.80 (Windows NT 6.1; U; sv) Presto/2.7.62 Version/11.01",
-    "Opera/9.80 (Windows NT 6.1; U; en-US) Presto/2.7.62 Version/11.01",
-    "Opera/9.80 (Windows NT 6.1; U; cs) Presto/2.7.62 Version/11.01",
-    "Opera/9.80 (Windows NT 6.0; U; pl) Presto/2.7.62 Version/11.01",
-    "Opera/9.80 (Windows NT 5.2; U; ru) Presto/2.7.62 Version/11.01",
-    "Opera/9.80 (Windows NT 5.1; U;) Presto/2.7.62 Version/11.01",
-    "Opera/9.80 (Windows NT 5.1; U; cs) Presto/2.7.62 Version/11.01",
-    "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.13) Gecko/20101213 Opera/9.80 (Windows NT 6.1; U; zh-tw) Presto/2.7.62 Version/11.01",
-    "Mozilla/5.0 (Windows NT 6.1; U; nl; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 Opera 11.01",
-    "Mozilla/5.0 (Windows NT 6.1; U; de; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 Opera 11.01",
-    "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; de) Opera 11.01",
-    "Opera/9.80 (X11; Linux x86_64; U; pl) Presto/2.7.62 Version/11.00",
-    "Opera/9.80 (X11; Linux i686; U; it) Presto/2.7.62 Version/11.00",
-    "Opera/9.80 (Windows NT 6.1; U; zh-cn) Presto/2.6.37 Version/11.00",
-    "Opera/9.80 (Windows NT 6.1; U; pl) Presto/2.7.62 Version/11.00",
-    "Opera/9.80 (Windows NT 6.1; U; ko) Presto/2.7.62 Version/11.00",
-    "Opera/9.80 (Windows NT 6.1; U; fi) Presto/2.7.62 Version/11.00",
-    "Opera/9.80 (Windows NT 6.1; U; en-GB) Presto/2.7.62 Version/11.00",
-    "Opera/9.80 (Windows NT 6.1 x64; U; en) Presto/2.7.62 Version/11.00",
-    "Opera/9.80 (Windows NT 6.0; U; en) Presto/2.7.39 Version/11.00"
+
 ]
 
 
@@ -376,8 +332,8 @@ def is_same_url(url: str) -> bool:
     TODO 是否是相似地址
     '''
     if is_html_url(url):
-        with already_download_html_lock:
-            return url in already_download_html_list
+        # with already_download_html_lock:
+        return url in already_download_html_list
     elif is_css_url(url):
         return url in already_download_css_list
     elif is_js_url(url):
@@ -416,9 +372,8 @@ def is_local_domain_url(url: str) -> bool:
     flag = True
     # 判断需要排除的链接是否在其中
     for p in exclude:
-        if p in url:
-            flag = False
-            break
+        if url.startswith(p):
+            return False
     return flag
 
 
@@ -434,17 +389,17 @@ def is_already_download(url: str) -> bool:
     if is_same_url(url):
         return True
     if is_html_url(url):
-        with html_url_lock:
-            if url in html_url_list:
-                return True
-            html_url_list.append(url)
-            # 分析文件后缀
-            if "True" not in is_get_file_ext:
-                ext = get_file_ext(url)
-                if ext != '':
-                    is_get_file_ext.append("True")
-                    file_ext[0] = f'.{ext}'
-            return False
+        # with html_url_lock:
+        if url in html_url_list:
+            return True
+        html_url_list.append(url)
+        # 分析文件后缀
+        if "True" not in is_get_file_ext:
+            ext = get_file_ext(url)
+            if ext != '':
+                is_get_file_ext.append("True")
+                file_ext[0] = f'.{ext}'
+        return False
     elif is_css_url(url):
         if url in css_url_list:
             return True
@@ -480,7 +435,10 @@ def is_already_download(url: str) -> bool:
 
 
 def replace_remove_url_dirs(url: str) -> str:
-    return url.replace('////', '/').replace('///', '/')
+    url = url.replace('////', '/').replace('///', '/')
+    if "#" in url:
+        return url.split("#")[0]
+    return url
 
 
 def check_download_url(url: str):
@@ -493,8 +451,6 @@ def check_download_url(url: str):
         url = url.split(domain)[-1]
     if url[0] != '\\':
         url = f'\\{url}'
-    # if len(url) >2 and url[-1] != '/' or url != '\\':
-    #     url = f'{url}/'
     return replace_remove_url_dirs(f'{root_url}{url}')
 
 
@@ -515,12 +471,11 @@ def response_html(url: str, is_wb_file=False, is_css_or_js=False):
     对链接 响应
     '''
     global web_encoding
-    web_encoding = None
     text_content = None
     html = None
     try:
         time.sleep(random.random() * 5)  # 添加休眠时间，防止访问服务器被封
-        data = requests.get(url=url, headers=random_headers(), verify=True, timeout=20)
+        data = requests.get(url=url, headers=random_headers(), verify=True, timeout=10)
         if data.status_code == 200:
             if is_wb_file:
                 return data
@@ -531,11 +486,11 @@ def response_html(url: str, is_wb_file=False, is_css_or_js=False):
                 }
             # 是否首次匹配 如果是首次匹配到了网页编码
             try:
-                if web_encoding is None:
+                if web_encoding == None:
                     web_encoding = re.search(r'.* charset="(.*?)".*', data.text, re.I)[1]
             except:
                 pass
-            if web_encoding is None:
+            if web_encoding == None:
                 try:
                     text_content = data.content.decode('UTF-8')
                     web_encoding = "UTF-8"
@@ -703,34 +658,39 @@ def start_download_wb_file(url):
     '''
     res = response_html(url, True)
 
-    try:
-        if res is None or res['content'] is None:
-            if len(already_download_html_list) == 0:
-                print("请输入正确地址 或者尝试其他地址~")
-            return
-    except:
+    if res is None:
         return
+
     try:
         fullpath = get_full_path(url)
         print(f'{fullpath}')
         with open(fullpath, mode='wb') as file:
-            file.write(res.content)
+            try:
+                file.write(res.content)
+            except:
+                pass
     except Exception as e:
         print(f"二进制文件 {url} 写入失败 {e}")
 
 
 def download_list(msg: str, url_list: list, already_download_list: list, is_css_or_js: bool):
     if len(url_list) != 0:
-        print(f"==================开始下载{msg}文件==================")
+        # print(f"==================开始下载{msg}文件==================")
         new_list = clone_list(url_list)
         for url in new_list:
+            num = 0
+            if len(new_list) <= 5:
+                num = len(new_list)
+            else:
+                num = 5
             if url not in already_download_list:
-                if is_css_or_js:
-                    start_download_text_file(url, True)
-                else:
-                    start_download_wb_file(url)
-                url_list.remove(url)
-                already_download_list.append(url)
+                with ThreadPoolExecutor(max_workers=num) as executor:
+                    if is_css_or_js:
+                        executor.submit(start_download_text_file, url, True)
+                    else:
+                        executor.submit(start_download_wb_file, url)
+                    url_list.remove(url)
+                    already_download_list.append(url)
 
 
 def download_other():
@@ -738,26 +698,32 @@ def download_other():
     下载其他文件
     :return:
     '''
-    thread1 = threading.Thread(target=download_list, args=('css', css_url_list, already_download_css_list, True))
-    thread2 = threading.Thread(target=download_list, args=('js', js_url_list, already_download_js_list, True))
-    thread3 = threading.Thread(target=download_list, args=('img', img_url_list, already_download_img_list, False))
-    thread4 = threading.Thread(target=download_list, args=('font', font_url_list, already_download_font_list, False))
-    thread5 = threading.Thread(target=download_list, args=('audio', audio_url_list, already_download_audio_list, False))
-    thread6 = threading.Thread(target=download_list, args=('video', video_url_list, already_download_video_list, False))
+    try:
+        thread1 = threading.Thread(target=download_list, args=('css', css_url_list, already_download_css_list, True))
+        thread2 = threading.Thread(target=download_list, args=('js', js_url_list, already_download_js_list, True))
+        thread3 = threading.Thread(target=download_list, args=('img', img_url_list, already_download_img_list, False))
+        thread4 = threading.Thread(target=download_list,
+                                   args=('font', font_url_list, already_download_font_list, False))
+        thread5 = threading.Thread(target=download_list,
+                                   args=('audio', audio_url_list, already_download_audio_list, False))
+        thread6 = threading.Thread(target=download_list,
+                                   args=('video', video_url_list, already_download_video_list, False))
 
-    thread1.start()
-    thread2.start()
-    thread3.start()
-    thread4.start()
-    thread5.start()
-    thread6.start()
+        thread1.start()
+        thread2.start()
+        thread3.start()
+        thread4.start()
+        thread5.start()
+        thread6.start()
 
-    thread1.join()
-    thread2.join()
-    thread3.join()
-    thread4.join()
-    thread5.join()
-    thread6.join()
+        thread1.join()
+        thread2.join()
+        thread3.join()
+        thread4.join()
+        thread5.join()
+        thread6.join()
+    except:
+        pass
 
 
 def parse_page(url):
@@ -766,28 +732,33 @@ def parse_page(url):
     '''
     if url not in already_download_html_list:
         if len(already_download_html_list) == 0:
-            print("=================开始下载 html 文件 =====================")
+            pass
+            # print("=================开始下载 html 文件 =====================")
         try:
             start_download_text_file(url)
-            with already_download_html_lock:
-                already_download_html_list.append(url)
-            with html_url_lock:
-                if url in html_url_list:
-                    html_url_list.remove(url)
+            # with already_download_html_lock:
+            already_download_html_list.append(url)
+            # with html_url_lock:
+            if url in html_url_list:
+                html_url_list.remove(url)
             if mode == '1':
                 download_other()
             if mode == '2' and len(html_url_list) == 0 and len(already_download_html_list) != 0:
                 download_other()
                 print("=================下载完毕==============================")
                 return
+            if len(html_url_list) == 1 and (html_url_list[0] == url or html_url_list[0] == root_url):
+                print("=================下载完毕==============================")
+                return
         except Exception as e:
             pass
         if is_html_url(url) or len(already_download_html_list) == 0:
-            with html_url_lock:
-                for next_url in html_url_list:
-                    # 使用线程池执行任务
-                    with ThreadPoolExecutor(max_workers=10) as executor:
-                        executor.submit(parse_page, next_url)
+            # with html_url_lock:
+            for next_url in html_url_list:
+                parse_page(next_url)
+                # 使用线程池执行任务
+                # with ThreadPoolExecutor(max_workers=10) as executor:
+                #     executor.submit(parse_page, next_url)
 
 
 def clear_all():
@@ -817,12 +788,13 @@ def run():
     global root_url
     global domain
     global mode
+
     while True:
         print("目前兼容性不好!测试有限!不支持单页面应用网站!")
-        url = input('请输入域名地址: 如 https://www.apple.com.cn/ (默认 apple 官网) : ')
+        url = input('请输入域名地址: 如 http://dianshixinxi.com/ (默认) : ')
         # 设置 root 地址
         if url == '':
-            url = 'https://www.apple.com.cn/'
+            url = 'http://dianshixinxi.com/'
         if re.match(r'^(https|http)://.*', url, re.I) is None:
             continue
         root_url = get_root_url(url)
