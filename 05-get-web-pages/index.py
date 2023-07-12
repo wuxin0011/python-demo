@@ -167,7 +167,7 @@ def create_path(file: str) -> str:
     '''
     创建文件夹
     '''
-    path = os.getcwd() + f"\\{domain}\\{file}"
+    path = os.getcwd() + f"\\{file}"
     path = remove_dirs(path)
     if not os.path.exists(path):
         os.makedirs(path)
@@ -206,10 +206,8 @@ def get_absolute_path(url: str) -> str:
     '''
     获取绝对路径
     '''
-    if url is None or len(url) == 0:
-        return ''
     url = url.replace('../', '').replace('./', '')
-    if url is not None and len(url) != 0 and url[0] != '/':
+    if len(url) != 0 and url[0] != '/':
         url = f'/{url}'
     return f'{root_url}{url}'
 
@@ -247,7 +245,6 @@ def get_file_ext(url: str) -> str:
     '''
     获取文件后缀
     '''
-
     filename = get_file_name(url)
     if "." in filename:
         return filename.split('.')[-1]
@@ -259,8 +256,6 @@ def is_img_url(url: str) -> bool:
     是否是图片地址
     '''
     # 排除 base64 编码
-    if url.startswith("//"):
-        return False
     if url.startswith("data:"):
         return False
     return re.match(r'.*(\.(png|jpg|jpeg|apng|avif|bmp|gif|ico|cur|svg|tiff|webp)).*', url, re.I) is not None
@@ -275,8 +270,8 @@ def is_html_url(url: str) -> bool:
     if url == '/' or url == '' or root_url == url or url == f'{root_url}/':
         return True
     # 一般认为 html 请求不带后缀
-    # if get_file_ext(url) == '':
-    #     return True
+    if get_file_ext(url) == '':
+        return True
     return re.match(r'.*(\.(html|htm|xhtml|shtml|php|asp|jsp|jspx|md|erb|twig)).*$', url,
                     re.I) is not None
 
@@ -351,6 +346,7 @@ def is_same_url(url: str) -> bool:
     #  TODO 比如 /page/1/index.html /page/2/index.html /page/3/index.html
     #  TODO 比如 /index_1.html /index_2.html /index_3.html
     #  对于以上相似的 不应重复下载 只需下载一次或者两次就够了！！！
+    #  ... 待完善
     return False
 
 
@@ -358,11 +354,12 @@ def is_local_domain_url(url: str) -> bool:
     '''
     是否是当前域名地址
     '''
-    if url.startswith("//"):
+    if url.startswith("://") or url.startswith("//"):
         return False
     if url.startswith("#"):
         return False
     # 如果没有 domain 同时也不是 https 或 http 链接说明是本站地址
+    # 就算是本站地址 如果是 https 开头的资源就没有必要下载了！
     if is_https(url):
         return False
     if url == '/' or url == '' or url == root_url or url == f'{root_url}/':
@@ -377,6 +374,21 @@ def is_local_domain_url(url: str) -> bool:
     return flag
 
 
+def append_list(url: str, l1: list) -> bool:
+    if url in l1:
+        return True
+    l1.append(url)
+    return False
+
+
+def init_html_ext(url: str):
+    if "True" not in is_get_file_ext:
+        ext = get_file_ext(url)
+        if ext != '':
+            is_get_file_ext.append("True")
+            file_ext[0] = f'.{ext}'
+
+
 def is_already_download(url: str) -> bool:
     '''
     判断是否是对应地址 以及 是否需要存放
@@ -389,47 +401,22 @@ def is_already_download(url: str) -> bool:
     if is_same_url(url):
         return True
     if is_html_url(url):
-        # with html_url_lock:
-        if url in html_url_list:
-            return True
-        html_url_list.append(url)
         # 分析文件后缀
-        if "True" not in is_get_file_ext:
-            ext = get_file_ext(url)
-            if ext != '':
-                is_get_file_ext.append("True")
-                file_ext[0] = f'.{ext}'
-        return False
+        init_html_ext(url)
+        # with html_url_lock:
+        return append_list(url, html_url_list)
     elif is_css_url(url):
-        if url in css_url_list:
-            return True
-        css_url_list.append(url)
-        return False
+        return append_list(url, css_url_list)
     elif is_js_url(url):
-        if url in js_url_list:
-            return True
-        js_url_list.append(url)
-        return False
-    elif is_font_url(url):
-        if url in font_url_list:
-            return True
-        font_url_list.append(url)
-        return False
+        return append_list(url, js_url_list)
     elif is_img_url(url):
-        if url in img_url_list:
-            return True
-        img_url_list.append(url)
-        return False
+        return append_list(url, img_url_list)
+    elif is_font_url(url):
+        return append_list(url, font_url_list)
     elif is_audio_url(url):
-        if url in audio_url_list:
-            return True
-        audio_url_list.append(url)
-        return False
+        return append_list(url, audio_url_list)
     elif is_video_url(url):
-        if url in video_url_list:
-            return True
-        video_url_list.append(url)
-        return False
+        return append_list(url, video_url_list)
     else:
         return True
 
@@ -474,7 +461,7 @@ def response_html(url: str, is_wb_file=False, is_css_or_js=False):
     text_content = None
     html = None
     try:
-        time.sleep(random.random() * 5)  # 添加休眠时间，防止访问服务器被封
+        time.sleep(random.random() * max_sleep_time)  # 添加休眠时间，防止访问服务器被封
         data = requests.get(url=url, headers=random_headers(), verify=True, timeout=10)
         if data.status_code == 200:
             if is_wb_file:
@@ -486,11 +473,11 @@ def response_html(url: str, is_wb_file=False, is_css_or_js=False):
                 }
             # 是否首次匹配 如果是首次匹配到了网页编码
             try:
-                if web_encoding == None:
+                if web_encoding is None:
                     web_encoding = re.search(r'.* charset="(.*?)".*', data.text, re.I)[1]
             except:
                 pass
-            if web_encoding == None:
+            if web_encoding is None:
                 try:
                     text_content = data.content.decode('UTF-8')
                     web_encoding = "UTF-8"
@@ -513,15 +500,11 @@ def response_html(url: str, is_wb_file=False, is_css_or_js=False):
                     html = BeautifulSoup(text_content, 'html.parser')
                 except:
                     pass
-        else:
-            # print("响应失败！")
-            pass
         return {
             'html': html,
             'text': text_content
         }
     except Exception as e:
-        # if e is not TimeoutError or e is not ConnectionError:
         print(f"响应失败！{url} error = {e}")
         return None
 
@@ -599,8 +582,8 @@ def clone_list(url_list: list):
 
 
 def get_replace_path_f(path: str):
-    return path.replace('https://', '').replace('http://', '').replace(domain, '').replace('/', '\\').replace('\\\\\\',
-                                                                                                              '\\')
+    return path.replace('https://', '').replace('http://', '').replace('/', '\\').replace('\\\\\\',
+                                                                                          '\\')
 
 
 def get_full_path(url):
@@ -679,10 +662,10 @@ def download_list(msg: str, url_list: list, already_download_list: list, is_css_
         new_list = clone_list(url_list)
         for url in new_list:
             num = 0
-            if len(new_list) <= 5:
+            if len(new_list) <= 10:
                 num = len(new_list)
             else:
-                num = 5
+                num = 10
             if url not in already_download_list:
                 with ThreadPoolExecutor(max_workers=num) as executor:
                     if is_css_or_js:
@@ -696,7 +679,6 @@ def download_list(msg: str, url_list: list, already_download_list: list, is_css_
 def download_other():
     '''
     下载其他文件
-    :return:
     '''
     try:
         thread1 = threading.Thread(target=download_list, args=('css', css_url_list, already_download_css_list, True))
@@ -722,12 +704,15 @@ def download_other():
         thread4.join()
         thread5.join()
         thread6.join()
-    except:
-        pass
+    except Exception as e:
+        print("多线程下载异常 {e}")
 
 
 def is_download_only_one_page() -> bool:
-    return only_download_this_page == '1' or only_download_this_page == 'y' or only_download_this_page == 'Y' or only_download_this_page == ''
+    return only_download_this_page == '1' \
+        or only_download_this_page == 'y' \
+        or only_download_this_page == 'Y' \
+        or only_download_this_page == ''
 
 
 def parse_page(url):
@@ -735,9 +720,6 @@ def parse_page(url):
     解析
     '''
     if url not in already_download_html_list:
-        if len(already_download_html_list) == 0:
-            pass
-            # print("=================开始下载 html 文件 =====================")
         try:
             start_download_text_file(url)
             # with already_download_html_lock:
@@ -766,7 +748,7 @@ def parse_page(url):
                             # with ThreadPoolExecutor(max_workers=10) as executor:
                             #     executor.submit(parse_page, next_url)
         except Exception as e:
-            pass
+            print("解析异常:{}".format(e))
 
 
 def clear_all():
@@ -793,11 +775,17 @@ def run():
     '''
     入口
     '''
+    print("****************************使用须知************************")
+    print("1、不支持单页面应用！！！")
+    print("2、推荐下载整个网站源码 比较慢")
+    print("3、兼容性问题 由于测试有限 所有不能一一兼顾到！")
+    print("4、相似网页无法判断！比如 /page/1 /page/2 或者 /index_1.html /index_2.html ，会导致无法终结！")
+    print("**********************************************************")
     global root_url
     global domain
     global mode
     global only_download_this_page
-    print("目前兼容性不好!测试有限!不支持单页面应用网站!")
+    global max_sleep_time
     while True:
         url = input('请输入域名地址: 如 http://dianshixinxi.com/ (默认) : ')
         # 设置 root 地址
@@ -810,23 +798,37 @@ def run():
         # 下载的文件夹就是以为 domain 根文件夹
         domain = get_domain_url(url)
         print("存放根目录文件名:", domain)
-        only_download_this_page = input('是否仅仅下载这个页面（默认）, 其任意其他字符为下载整个网站源码！')
+        only_download_this_page = input(
+            '仅下载该链接（默认 推荐使用该方式！）; 输入任意其他字符为下载整个网站源码！')
+
         if not is_download_only_one_page():
             mode = input(
-                '请选择下载模式 1、先下载单页面内容 (默认 页面较多)  2、先下载所有html再下载，其他其他资源 (推荐页面较少使用)  :')
+                '请选择下载模式 1、先下载单页面内容 (默认 页面较多)  2、先下载所有html再下载，其他其他资源 (在页面较少推荐使用该方式)  :')
             if mode != '2':
                 mode = '1'
         if is_download_only_one_page():
-            print("你选择只下载该页面")
+            print(f"需要下载的页面地址为:{url} ")
         else:
-            print("即将下载整个网站源码 需要耐心等待！")
+            print(f"即将下载 {root_url} 网站源码 需要耐心等待！")
             if mode != '2':
                 print("选择模式为下载所有html完毕之后在下载 其他资源")
             else:
                 print('选择模式为下载选下载一个页面所有内容包括静态资源 !')
+        try:
+            max_sleep_time = int(
+                input('单个链接最大休眠时间【防止被网站封禁 默认最大为 2s 】 输入 0-5 之间数字 超过5 将设置为5:'))
+            if max_sleep_time < 0:
+                max_sleep_time = 0
+            elif max_sleep_time > 5:
+                max_sleep_time = 5
+        except:
+            max_sleep_time = 2
+        print(f"休眠最大时间为: {max_sleep_time}s")
+        print("**************************任务开始****************************")
         parse_page(url)
         clear_all()
-        answer = input("是否继续y? 输入y继续: ")
+        print("*************************************************************")
+        answer = input("本次任务已经完成！是否继续y? 输入y继续: ")
         if answer == 'y' or answer == "Y":
             continue
         else:

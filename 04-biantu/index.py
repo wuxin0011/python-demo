@@ -80,6 +80,13 @@ list_useragent = [
 ]
 
 
+# 创建随机请求头函数
+def random_headers():
+    return {
+        'user-agent': random.choice(list_useragent)
+    }
+
+
 # 创建文件夹
 def create_path():
     path = os_getcwd() + f"\\彼岸图\\{link_type}"
@@ -88,16 +95,21 @@ def create_path():
     return path
 
 
+# max_sleep_times = 0
+
 # 提取解析之后的response数据
 def response_html(link):
     html = None
+    web_encoding = None
     try:
-        sleep(randomNumber() * 3)  # 添加休眠时间，防止访问服务器被封
-        h = random_headers()
-        data = req_get(url=link, headers=h, verify=True)
+        sleep(randomNumber() * max_sleep_time)  # 添加休眠时间，防止访问服务器被封
+        data = req_get(url=link, headers=random_headers(), verify=True)
         if data.status_code == 200:
-            data = data.content.decode("gbk")
-            html = BeautifulSoup(data, 'html.parser')
+            if is_pic_netbian_top(link):
+                text = data.content.decode("utf-8")
+            elif is_pic_netbian_com(link):
+                text = data.content.decode("gbk")
+            html = BeautifulSoup(text, 'html.parser')
         else:
             print("响应失败！")
         return html
@@ -114,27 +126,10 @@ def get_imgList(data):
         try:
             # 大图片的地址url
             if img.get("href") is not None:
-                img_url = f'{root_url}{img.get("href")}'
+                img_url = check_url(f'{root_url}{img.get("href")}')
                 # 访问大图片地址
-                jgp_html_data = response_html(img_url)
-
-                if jgp_html_data is None:
-                    pass;
-                else:
-                    # 获取jpg格式的链接地址
-                    j_ = jgp_html_data.find("img").get("src")
-                    # 当获取不到url时不参与执行
-                    if j_ is not None:
-                        jpg_url = f'{root_url}{j_}'
-                        jpg_name = jgp_html_data.find('img').get('title')
-                        # 多线程下载图片
-                        if jpg_name is not None:
-                            t1 = Thread(target=save, args=(jpg_url, jpg_name))
-                            t1.start()
-                        else:
-                            jpg_name = jpg_url.split('/')[-1]
-                            t1 = Thread(target=save, args=(jpg_url, jpg_name))
-                            t1.start()
+                result = get_img_url_and_name(img_url)
+                save(result['url'], result['name'])
 
         except:
             print("下载失败")
@@ -142,34 +137,53 @@ def get_imgList(data):
 
 # 保存图片
 def save(jpg_url, jpg_name):
-    jpg = req_get(jpg_url, headers=random_headers()).content
-    path = create_path()
-    with open("{}//{}.jpg".format(path, jpg_name), "wb") as f:
-        f.write(jpg)
-    print("下载成功！{}".format(jpg_name))
+    if jpg_url is not None:
+        if jpg_name is None or jpg_name == '':
+            jpg_name = f'{time()}'
+        jpg = req_get(jpg_url, headers=random_headers()).content
+        path = create_path()
+        with open("{}//{}.jpg".format(path, jpg_name), "wb") as f:
+            f.write(jpg)
+        print("下载成功！{}".format(jpg_name))
+
+
+def check_url(url: str) -> str:
+    tcp = ''
+    if url.startswith("https://"):
+        tcp = 'https://'
+    elif url.startswith("http://"):
+        tcp = "http://"
+    return f'{tcp}{url.replace(tcp, "").replace("///", "/").replace("//", "/")}'
+
+
+def get_img_url_and_name(link):
+    result = {
+        'url': None,
+        'name': None
+    }
+    jgp_html_data = response_html(link)
+    if jgp_html_data is None:
+        return result
+    # 获取jpg格式的链接地址
+    img = jgp_html_data.select_one("div.photo-pic a#img img")
+    if img is None:
+        return result
+    result['url'] = img.get('src')
+    result['name'] = img.get('alt')
+    if result['name'] == '' or result['name'] is None:
+        result['name'] = img.get('data-pic').split('/')[-1]
+    return result
 
 
 # 保存图片
 def save_tupian(link):
-    # 访问大图片地址
-    jgp_html_data = response_html(link)
-    # 获取jpg格式的链接地址
-    jpg_url = f'{root_url}{jgp_html_data.find("img").get("src")}'
-    # 图片name
-    jpg_name = jgp_html_data.find('img').get('title')
-    # 当title为none时候
-    if jpg_name is not None:
-        save(jpg_url, jpg_name)
-    else:
-        jpg_name = jpg_url.split('/')[-1]
-        save(jpg_url, jpg_name)
+    result = get_img_url_and_name(link)
+    save(result['url'], result['name'])
 
 
 def run(href, printPage):
-    global link_type
-    #  判断链接类型
     link_type = parse_link_type(href)
-    print("下载类型为",link_type,"下载地址为:",href,"共计:",printPage,'页')
+    print("下载类型为 【", link_type, "】 下载地址为:", href, "共计:", printPage, '页')
     print("保存地址：", create_path())
     for n in range(1, printPage + 1):
         try:
@@ -189,20 +203,41 @@ def run(href, printPage):
             print("爬取失败！{} {}".format(n, e))
 
 
+def is_pic_netbian_com(url) -> bool:
+    return re.match(r'^(https|http)://.*\.netbian\.com\.*', url, re.I) is not None
+
+
+def is_pic_netbian_top(url) -> bool:
+    return re.match(r'^(https|http)://.*\.netbian\.top\.*', url, re.I) is not None
+
+
 def is_support(url):
-    return re.match('https?://pic.netbian.com/(.*)', url)
+    return re.match(r'^(https|http)://.*\.netbian.*', url, re.I) is not None
 
 
 def is_picture_url(url):
-    return re.match('https?://pic.netbian.com/tupian/\\d+.html', url)
+    return re.match(r'^(https|http)://.*\.netbian\..*/tupian/\d+\.html', url, re.I) is not None
 
 
 def parse_link_type(input_url):
     for k, v in picture_type.items():
-        url = "https?://pic.netbian.com/" + k + "(.*)"
-        if re.match(url, input_url):
+        url = r'https://.*\.netbian\..*/' + k + r'(.*)'
+        if re.match(url, input_url, re.I):
             return v
     return "默认"
+
+
+def menu_sleep_time():
+    try:
+        max_sleep_time = int(
+            input('单个链接最大休眠时间【防止被网站封禁 默认最大为 2s】 输入 0-5 之间数字 超过5 将设置为5:'))
+        if max_sleep_time < 0:
+            max_sleep_time = 0
+        elif max_sleep_time > 5:
+            max_sleep_time = 5
+    except:
+        max_sleep_time = 2
+    print(f"最大休眠时间为:{max_sleep_time}s")
 
 
 def start():
@@ -216,6 +251,7 @@ def start():
                     num = '1'
                 if re.match(r'\d+', num):
                     if int(num) >= 1:
+                        menu_sleep_time()
                         run(example_urls[int(link) - 1], int(num))
                         break
                     else:
@@ -227,12 +263,14 @@ def start():
 
             if is_support(link):  # 判断是不是下载链接地址
                 if is_picture_url(link):  # 判断图片链接是否是最终链接地址
-                    save_tupian(link)
+                    save_tupian(check_url(f'{link}'))
                     break
                 else:
+
                     num = input("请输入要下载的页码数：")
                     if re.match(r'\d+', num):
                         if int(num) >= 1:
+                            menu_sleep_time()
                             run(link, int(num))
                             break
                         else:
@@ -248,26 +286,39 @@ def start():
             continue
 
 
-# 创建随机请求头函数
-def random_headers():
-    return {
-        'user-agent': random.choice(list_useragent)
-    }
-
-
 def menu():
+    global max_sleep_time
+    global link_type
+    #  判断链接类型
+    link_type = '默认'
+    max_sleep_time = 2
     index = 1
     print("\n==============================默认菜单====================")
-    for k,v in picture_type.items():
-        print('序号',index, '类型',v ,"下载地址:",f'{root_url}{k}')
-        index = index+1
+    for k, v in picture_type.items():
+        print('序号', index, '类型', v, "下载地址:", f'{root_url}{k}')
+        index = index + 1
     print("==========================================================")
     print("下载的链接页的起始页链接仅支持https://pic.netbian.com的图片：")
 
 
-if __name__ == '__main__':
-    # 拼接链接的地址
-    root_url = "http://pic.netbian.com/"
+def input_root_url():
+    global root_url
+    print(" 1 https://pic.netbian.com/ （默认）")
+    print(" 2 https://pic.netbian.top/ ")
+    try:
+        url = int(input("请选择链接源 默认为 1"))
+        if url != '2':
+            root_url = 'https://pic.netbian.top/'
+        else:
+            root_url = 'https://pic.netbian.com/'
+    except:
+        root_url = 'https://pic.netbian.com/'
+    print(f"使用下载源为 {'https://pic.netbian.com/'}")
+
+
+def start_select_input():
+    input_root_url()
+    global example_urls
     example_urls = []
     for k in picture_type.keys():
         example_urls.append(f'{root_url}{k}/')
@@ -282,3 +333,7 @@ if __name__ == '__main__':
         else:
             print("\n 拜拜! \n")
             break
+
+
+if __name__ == '__main__':
+    start_select_input()
