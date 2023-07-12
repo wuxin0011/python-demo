@@ -672,7 +672,7 @@ def start_download_text_file(url, is_css_or_js=False):
     下载 html css js 文件
     '''
     res = response_html(url, False, is_css_or_js)
-    if res is None or not hasattr(res, 'text') or res.text is None:
+    if res is None or res.text is None:
         if len(already_download_html_list) == 0:
             print("请输入正确地址 或者尝试其他地址~")
         return
@@ -700,7 +700,7 @@ def start_download_wb_file(url):
     '''
     res = response_html(url, True)
 
-    if res is None or not hasattr(res, 'content') or res.content is None:
+    if res is None or res.content is None:
         if len(already_download_html_list) == 0:
             print("请输入正确地址 或者尝试其他地址~")
         return
@@ -763,7 +763,7 @@ def parse_page(url):
             print("=================开始下载 html 文件 =====================")
         try:
             start_download_text_file(url)
-            with  already_download_html_lock:
+            with already_download_html_lock:
                 already_download_html_list.append(url)
             with html_url_lock:
                 if url in html_url_list:
