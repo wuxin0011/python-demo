@@ -672,9 +672,12 @@ def start_download_text_file(url, is_css_or_js=False):
     下载 html css js 文件
     '''
     res = response_html(url, False, is_css_or_js)
-    if res is None or res.text is None:
-        if len(already_download_html_list) == 0:
-            print("请输入正确地址 或者尝试其他地址~")
+    try:
+        if res is None or res['text'] is None:
+            if len(already_download_html_list) == 0:
+                print("请输入正确地址 或者尝试其他地址~")
+            return
+    except:
         return
     if not is_css_or_js or is_html_url(url) or len(already_download_html_list) == 0:
         if 'html' in res:
@@ -700,9 +703,12 @@ def start_download_wb_file(url):
     '''
     res = response_html(url, True)
 
-    if res is None or res.content is None:
-        if len(already_download_html_list) == 0:
-            print("请输入正确地址 或者尝试其他地址~")
+    try:
+        if res is None or res['content'] is None:
+            if len(already_download_html_list) == 0:
+                print("请输入正确地址 或者尝试其他地址~")
+            return
+    except:
         return
     try:
         fullpath = get_full_path(url)
