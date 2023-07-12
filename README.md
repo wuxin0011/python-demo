@@ -76,7 +76,7 @@ pip install pandas -i http://pypi.douban.com/simple/
 
 ## 网站源码抓取
 
-[网站源码抓取](https://github.com/wuxin0011/python-demo/releases/download/1.0/qd_novel_info.exe)
+[网站源码抓取](https://github.com/wuxin0011/python-demo/releases/download/1.0/get_web_page.exe)
 
 ### 问题
 - 下载时间久无法终止
@@ -95,7 +95,7 @@ pip install pyinstaller
 ## 打包
 
 ```shell
-pyinstaller --onefile xxxx.py --icon=图标路径
+pyinstaller --onefile xxxx.py --icon=图标路径 --name=指定打包名称
 ```
 
 更多信息请自行查看

@@ -726,6 +726,10 @@ def download_other():
         pass
 
 
+def is_download_only_one_page() -> bool:
+    return only_download_this_page == '1' or only_download_this_page == 'y' or only_download_this_page == 'Y' or only_download_this_page == ''
+
+
 def parse_page(url):
     '''
     解析
@@ -741,24 +745,28 @@ def parse_page(url):
             # with html_url_lock:
             if url in html_url_list:
                 html_url_list.remove(url)
-            if mode == '1':
+            if is_download_only_one_page():
                 download_other()
-            if mode == '2' and len(html_url_list) == 0 and len(already_download_html_list) != 0:
-                download_other()
-                print("=================下载完毕==============================")
-                return
-            if len(html_url_list) == 1 and (html_url_list[0] == url or html_url_list[0] == root_url):
-                print("=================下载完毕==============================")
-                return
+            else:
+                if mode == '1':
+                    download_other()
+                if mode == '2' and len(html_url_list) == 0 and len(already_download_html_list) != 0:
+                    download_other()
+                    print("=================下载完毕==============================")
+                    return
+                if len(html_url_list) == 1 and (html_url_list[0] == url or html_url_list[0] == root_url):
+                    print("=================下载完毕==============================")
+                    return
+                if not is_download_only_one_page():
+                    if is_html_url(url) or len(already_download_html_list) == 0:
+                        # with html_url_lock:
+                        for next_url in html_url_list:
+                            parse_page(next_url)
+                            # 使用线程池执行任务
+                            # with ThreadPoolExecutor(max_workers=10) as executor:
+                            #     executor.submit(parse_page, next_url)
         except Exception as e:
             pass
-        if is_html_url(url) or len(already_download_html_list) == 0:
-            # with html_url_lock:
-            for next_url in html_url_list:
-                parse_page(next_url)
-                # 使用线程池执行任务
-                # with ThreadPoolExecutor(max_workers=10) as executor:
-                #     executor.submit(parse_page, next_url)
 
 
 def clear_all():
@@ -788,9 +796,9 @@ def run():
     global root_url
     global domain
     global mode
-
+    global only_download_this_page
+    print("目前兼容性不好!测试有限!不支持单页面应用网站!")
     while True:
-        print("目前兼容性不好!测试有限!不支持单页面应用网站!")
         url = input('请输入域名地址: 如 http://dianshixinxi.com/ (默认) : ')
         # 设置 root 地址
         if url == '':
@@ -801,11 +809,21 @@ def run():
         print("当前网站地址:", root_url)
         # 下载的文件夹就是以为 domain 根文件夹
         domain = get_domain_url(url)
-        print("当前网站域名:", domain)
-        mode = input('请选择下载模式 1、按照下载顺序下载 (默认 页面较多)  2、按照文件顺序下载 (页面较少)  :')
-        if mode != '2':
-            mode = '1'
-            print('将采用默认顺序下载 !')
+        print("存放根目录文件名:", domain)
+        only_download_this_page = input('是否仅仅下载这个页面（默认）, 其任意其他字符为下载整个网站源码！')
+        if not is_download_only_one_page():
+            mode = input(
+                '请选择下载模式 1、先下载单页面内容 (默认 页面较多)  2、先下载所有html再下载，其他其他资源 (推荐页面较少使用)  :')
+            if mode != '2':
+                mode = '1'
+        if is_download_only_one_page():
+            print("你选择只下载该页面")
+        else:
+            print("即将下载整个网站源码 需要耐心等待！")
+            if mode != '2':
+                print("选择模式为下载所有html完毕之后在下载 其他资源")
+            else:
+                print('选择模式为下载选下载一个页面所有内容包括静态资源 !')
         parse_page(url)
         clear_all()
         answer = input("是否继续y? 输入y继续: ")
